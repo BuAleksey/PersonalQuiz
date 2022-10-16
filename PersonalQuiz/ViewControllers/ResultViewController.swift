@@ -18,59 +18,34 @@ class ResultViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.hidesBackButton = true
         
-        calculateResult()
+        updateResult()
     }
     
     @IBAction func doneButtonPressed(_ sender: UIBarButtonItem) {
         navigationController?.dismiss(animated: true)
     }
     
-    private func calculateResult() {
-        let catAnswers = answersChosen.filter { $0.animal == .cat }
-        let dogAnswers = answersChosen.filter { $0.animal == .dog }
-        let rabbitAnswers = answersChosen.filter { $0.animal == .rabbit }
-        let turtlAnswers = answersChosen.filter { $0.animal == .turtle }
+    private func updateResult() {
+        var frequencyOfAnimals: [Animal: Int] = [:]
+        let animals = answersChosen.map { $0.animal }
         
-        if catAnswers.count >= dogAnswers.count,
-           catAnswers.count >= rabbitAnswers.count,
-           catAnswers.count >= turtlAnswers.count {
-            for answer in answersChosen {
-                if answer.animal == .cat {
-                    resultLabel.text = "Вы - \(String(answer.animal.rawValue))"
-                    difinitionLabel.text = answer.animal.definition
-                }
-                break
-            }
-        } else if dogAnswers.count >= catAnswers.count,
-                  dogAnswers.count >= rabbitAnswers.count,
-                  dogAnswers.count >= turtlAnswers.count {
-            for answer in answersChosen {
-                if answer.animal == .dog {
-                    resultLabel.text = "Вы - \(String(answer.animal.rawValue))"
-                    difinitionLabel.text = answer.animal.definition
-                }
-                break
-            }
-        } else if rabbitAnswers.count >= catAnswers.count,
-                  rabbitAnswers.count >= dogAnswers.count,
-                  rabbitAnswers.count >= turtlAnswers.count {
-            for answer in answersChosen {
-                if answer.animal == .rabbit {
-                    resultLabel.text = "Вы - \(String(answer.animal.rawValue))"
-                    difinitionLabel.text = answer.animal.definition
-                }
-                break
-            }
-        } else if turtlAnswers.count >= catAnswers.count,
-                  turtlAnswers.count >= dogAnswers.count,
-                  turtlAnswers.count >= rabbitAnswers.count {
-            for answer in answersChosen {
-                if answer.animal == .turtle {
-                    resultLabel.text = "Вы - \(String(answer.animal.rawValue))"
-                    difinitionLabel.text = answer.animal.definition
-                }
-                break
+        for animal in animals {
+            if let animalsTypeCount = frequencyOfAnimals[animal] {
+                frequencyOfAnimals.updateValue(animalsTypeCount + 1, forKey: animal)
+            } else {
+                frequencyOfAnimals[animal] = 1
             }
         }
+        
+        let sortedFrequency = frequencyOfAnimals.sorted { $0.value > $1.value }
+        guard let result = sortedFrequency.first?.key else { return }
+        
+        updateScreen(with: result)
     }
+
+    private func updateScreen(with animal: Animal) {
+        resultLabel.text = "Вы - \(String(animal.rawValue))"
+        difinitionLabel.text = animal.definition
+    }
+       
 }
